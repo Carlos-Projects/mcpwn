@@ -3,6 +3,8 @@
 [![CI](https://github.com/Carlos-Projects/mcpwn/actions/workflows/ci.yml/badge.svg)](https://github.com/Carlos-Projects/mcpwn/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/mcpwn-core)](https://pypi.org/project/mcpwn-core/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](Dockerfile)
 [![GitHub stars](https://img.shields.io/github/stars/Carlos-Projects/mcpwn?style=social)](https://github.com/Carlos-Projects/mcpwn)
 
 Offensive security testing framework for [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers.
@@ -12,18 +14,29 @@ Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** 
 ## Quick demo
 
 ```bash
-git clone https://github.com/Carlos-Projects/mcpwn
-cd mcpwn
-pip install -e ".[dev]"
+pip install mcpwn-core
 mcpwn demo
 ```
 
 ## Installation
 
 ```bash
-pip install -e .
-# With dev dependencies (tests):
+# From PyPI (recommended)
+pip install mcpwn-core
+
+# Or from source
+git clone https://github.com/Carlos-Projects/mcpwn
+cd mcpwn
 pip install -e ".[dev]"
+```
+
+### Docker
+
+```bash
+docker build -t mcpwn-core .
+docker run -p 8080:8080 mcpwn-core  # lab server
+# or
+docker compose up
 ```
 
 ## Usage
