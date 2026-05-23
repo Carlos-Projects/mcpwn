@@ -19,6 +19,7 @@ from mcpwn.attacks.injection_tester import (
     test_path_traversal,
 )
 from mcpwn.attacks.tool_analysis import analyze_tools
+from mcpwn.attacks.a2a_scanner import scan_a2a_agent
 from mcpwn.core.findings import ScanResult
 from mcpwn.core.report import generate_html_report, save_json
 from mcpwn.utils.mcp_connect import connect_stdio
@@ -195,6 +196,45 @@ def report(
     data = json.loads(input_file.read_text())
     path = generate_html_report(data, output)
     console.print(f"Report generated: [green]{path}[/]")
+
+
+@app.command(name="survey-a2a")
+def survey_a2a(
+    url: str = typer.Argument(..., help="A2A agent URL (e.g. https://agent.example.com)"),
+    output: Path = typer.Option(None, "--output", "-o", help="Save results to JSON file"),
+    html: Path = typer.Option(None, "--html", help="Generate HTML report"),
+):
+    """Survey an A2A agent by fetching and validating its agent card."""
+    console.print(Panel(f"[bold cyan]MCPwn A2A Survey[/]\n[dim]Target:[/] {url}", title="MCPwn"))
+
+    async def run():
+        result = ScanResult(target=url)
+        console.print("\n[bold]Phase 1:[/] Fetching agent card...")
+        findings = await scan_a2a_agent(url)
+        result.findings.extend(findings)
+        console.print(f"  Found [yellow]{len(findings)}[/] finding(s)")
+        return result
+
+    scan_result = asyncio.run(run())
+
+    summary = scan_result.summary
+    console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
+    for sev, count in sorted(summary["by_severity"].items()):
+        color = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}.get(sev, "white")
+        console.print(f"  [{color}]{sev}: {count}[/]")
+
+    result_dict = scan_result.to_dict()
+
+    if output:
+        save_json(result_dict, output)
+        console.print(f"\nResults saved to [green]{output}[/]")
+
+    if html:
+        generate_html_report(result_dict, html)
+        console.print(f"HTML report saved to [green]{html}[/]")
+
+    if not output and not html:
+        print(json.dumps(result_dict, indent=2))
 
 
 if __name__ == "__main__":
