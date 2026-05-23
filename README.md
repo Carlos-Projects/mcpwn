@@ -1,13 +1,29 @@
 # MCPwn
 
+[![CI](https://github.com/Carlos-Projects/mcpwn/actions/workflows/ci.yml/badge.svg)](https://github.com/Carlos-Projects/mcpwn/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Carlos-Projects/mcpwn?style=social)](https://github.com/Carlos-Projects/mcpwn)
+
 Offensive security testing framework for [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers.
 
-Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** MCP servers by sending real attack payloads and analyzing responses. It includes a deliberately vulnerable lab server for practice.
+Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** MCP servers by sending real attack payloads and analyzing responses. Includes a deliberately vulnerable lab server for practice.
+
+## Quick demo
+
+```bash
+git clone https://github.com/Carlos-Projects/mcpwn
+cd mcpwn
+pip install -e ".[dev]"
+mcpwn demo
+```
 
 ## Installation
 
 ```bash
 pip install -e .
+# With dev dependencies (tests):
+pip install -e ".[dev]"
 ```
 
 ## Usage
@@ -15,23 +31,27 @@ pip install -e .
 ### Survey an MCP server
 
 ```bash
-# Via HTTP (Streamable HTTP transport)
+# Via HTTP
 mcpwn survey --url http://localhost:8080/mcp
 
 # Via stdio (local process)
 mcpwn survey --stdio "uv run my_server.py"
 
 # Save results
-mcpwn survey --url http://localhost:8080/mcp --output results.json --html report.html
+mcpwn survey --url http://localhost:8080/mcp --output results.json
+
+# Generate HTML report
+mcpwn survey --url http://localhost:8080/mcp --html report.html
+
+# Skip active injection tests
+mcpwn survey --url http://localhost:8080/mcp --no-injection
 ```
 
 ### Start the vulnerable lab
 
 ```bash
-# HTTP mode (recommended)
 mcpwn lab --http --port 8080
-
-# Then in another terminal:
+# In another terminal:
 mcpwn survey --url http://localhost:8080/mcp
 ```
 
@@ -41,6 +61,39 @@ mcpwn survey --url http://localhost:8080/mcp
 mcpwn report results.json --output report.html
 ```
 
+### Run automated demo
+
+```bash
+mcpwn demo
+```
+
+## Example output
+
+```
+$ mcpwn survey --url http://localhost:8080/mcp
+
+Phase 1: Enumerating tools...
+  Found 5 tool(s)
+    • execute_command: Execute a system command on the server...
+    • read_file: Read the contents of any file on the server...
+    • search_database: Search for users in the internal employee database...
+    • system_update: System update utility...
+    • delete_logs: Delete old log files...
+
+Phase 2: Passive analysis (tool poisoning detection)...
+  Found 4 passive findings
+
+Phase 3: Active injection testing...
+  ! execute_command: 5 command injection vector(s)
+  ! system_update: 5 command injection vector(s)
+  Found 11 active findings
+
+Summary: 15 total finding(s)
+  critical: 11
+  high: 1
+  medium: 3
+```
+
 ## Attack modules
 
 ### Passive analysis (always runs)
@@ -48,10 +101,11 @@ mcpwn report results.json --output report.html
 - **Tool poisoning detection**: Flags dangerous tool names (`exec`, `eval`, `shell`, `delete`, `system`, etc.)
 - **Tool shadowing**: Detects tools with the same names as common MCP tools
 - **Suspicious descriptions**: Finds instruction-like content in tool descriptions
+- **Schema analysis**: Flags parameters without validation (`type: string` without enum/pattern)
 
 ### Active injection testing (requires tool calls)
 
-- **Command injection**: Tests 5 payload types (`;`, `&&`, `|`, `$()`, backtick) against each string parameter
+- **Command injection**: Tests 5 payload types (`;`, `&&`, `|`, `$()`, backtick) against each string parameter. Confirms via response marker detection.
 - **Path traversal**: Tests `../../../etc/passwd` patterns on file-related parameters
 
 ## Security warnings
@@ -77,7 +131,7 @@ The lab (`mcpwn lab`) starts a deliberately vulnerable MCP server for security t
 ```
 mcpwn/
 ├── mcpwn/
-│   ├── cli.py              # Typer CLI (survey, lab, report)
+│   ├── cli.py              # Typer CLI (survey, lab, report, demo)
 │   ├── core/
 │   │   ├── findings.py     # Finding, ScanResult models
 │   │   └── report.py       # HTML report generator
@@ -88,6 +142,9 @@ mcpwn/
 │   │   └── server.py       # Vulnerable MCP server
 │   └── utils/
 │       └── mcp_connect.py  # MCP connection helpers
+├── tests/
+│   ├── test_findings.py
+│   └── test_tool_analysis.py
 └── pyproject.toml
 ```
 
@@ -102,4 +159,15 @@ mcpwn/
 ## Requirements
 
 - Python 3.10+
-- `mcp`, `typer`, `rich`, `httpx`, `jinja2`
+- `mcp>=1.0.0`, `typer>=0.12.0`, `rich>=13.0.0`, `httpx>=0.27.0`, `jinja2>=3.0.0`
+
+## Tests
+
+```bash
+pip install -e ".[dev]"
+pytest -v
+```
+
+## License
+
+MIT

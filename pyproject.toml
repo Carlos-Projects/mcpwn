@@ -17,6 +17,11 @@ dev = ["pytest>=7.0", "pytest-asyncio>=0.24"]
 [project.scripts]
 mcpwn = "mcpwn.cli:app"
 
+[project.urls]
+Homepage = "https://github.com/Carlos-Projects/mcpwn"
+Repository = "https://github.com/Carlos-Projects/mcpwn"
+Documentation = "https://github.com/Carlos-Projects/mcpwn"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
