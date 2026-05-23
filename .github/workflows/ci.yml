@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+
+      - name: Run tests
+        run: pytest -v
+
+      - name: Run lab integration test
+        run: |
+          python -m mcpwn.lab.server --http --port 8080 &
+          sleep 3
+          mcpwn survey --url http://localhost:8080/mcp --output /tmp/results.json
+          python -c "
+          import json
+          data = json.load(open('/tmp/results.json'))
+          assert len(data['findings']) > 0, 'No findings detected'
+          print(f'Integration test passed: {len(data[\"findings\"])} findings')
+          "
