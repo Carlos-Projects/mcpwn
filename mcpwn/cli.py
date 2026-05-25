@@ -29,6 +29,31 @@ from mcpwn.utils.mcp_connect import connect_stdio
 console = Console()
 app = typer.Typer(name="mcpwn", help="Offensive security testing framework for MCP protocols")
 
+SEVERITY_COLORS = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}
+
+
+def print_results(scan_result: ScanResult, output: Path | None, html: Path | None):
+    summary = scan_result.summary
+    console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
+    for sev in ["critical", "high", "medium", "low"]:
+        count = summary["by_severity"].get(sev, 0)
+        if count:
+            color = SEVERITY_COLORS.get(sev, "white")
+            console.print(f"  [{color}]{sev}: {count}[/]")
+
+    result_dict = scan_result.to_dict()
+
+    if output:
+        save_json(result_dict, output)
+        console.print(f"\nResults saved to [green]{output}[/]")
+
+    if html:
+        generate_html_report(result_dict, html)
+        console.print(f"HTML report saved to [green]{html}[/]")
+
+    if not output and not html:
+        print(json.dumps(result_dict, indent=2))
+
 
 async def run_survey(
     url: str | None = None,
@@ -122,24 +147,7 @@ def survey(
         console.print(f"[red]Error: {e}[/]")
         raise typer.Exit(1)
 
-    summary = scan_result.summary
-    console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
-    for sev, count in sorted(summary["by_severity"].items()):
-        color = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}.get(sev, "white")
-        console.print(f"  [{color}]{sev}: {count}[/]")
-
-    result_dict = scan_result.to_dict()
-
-    if output:
-        save_json(result_dict, output)
-        console.print(f"\nResults saved to [green]{output}[/]")
-
-    if html:
-        generate_html_report(result_dict, html)
-        console.print(f"HTML report saved to [green]{html}[/]")
-
-    if not output and not html:
-        print(json.dumps(result_dict, indent=2))
+    print_results(scan_result, output, html)
 
 
 @app.command()
@@ -216,7 +224,14 @@ def report(
     output: Path = typer.Option("report.html", "--output", "-o", help="Output HTML file"),
 ):
     """Generate an HTML report from a JSON results file."""
-    data = json.loads(input_file.read_text())
+    if not input_file.exists():
+        console.print(f"[red]Error: File not found: {input_file}[/]")
+        raise typer.Exit(1)
+    try:
+        data = json.loads(input_file.read_text())
+    except json.JSONDecodeError as e:
+        console.print(f"[red]Error: Invalid JSON in {input_file}: {e}[/]")
+        raise typer.Exit(1)
     path = generate_html_report(data, output)
     console.print(f"Report generated: [green]{path}[/]")
 
@@ -244,24 +259,7 @@ def survey_a2a(
         console.print(f"[red]Error: {e}[/]")
         raise typer.Exit(1)
 
-    summary = scan_result.summary
-    console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
-    for sev, count in sorted(summary["by_severity"].items()):
-        color = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}.get(sev, "white")
-        console.print(f"  [{color}]{sev}: {count}[/]")
-
-    result_dict = scan_result.to_dict()
-
-    if output:
-        save_json(result_dict, output)
-        console.print(f"\nResults saved to [green]{output}[/]")
-
-    if html:
-        generate_html_report(result_dict, html)
-        console.print(f"HTML report saved to [green]{html}[/]")
-
-    if not output and not html:
-        print(json.dumps(result_dict, indent=2))
+    print_results(scan_result, output, html)
 
 
 if __name__ == "__main__":

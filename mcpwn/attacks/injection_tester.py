@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import asyncio
-from typing import Any
-
 from mcp.types import Tool, TextContent
 
 from mcpwn.core.findings import Finding

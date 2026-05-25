@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 
-from mcp.types import Tool, TextContent
+from mcp.types import Tool
 
 from mcpwn.core.findings import Finding
 
