@@ -16,7 +16,7 @@ async def scan_a2a_agent(url: str, client=None) -> list[Finding]:
 
     close_client = False
     if client is None:
-        client = httpx.AsyncClient(timeout=15)
+        client = httpx.AsyncClient(timeout=15, follow_redirects=False)
         close_client = True
 
     try:
