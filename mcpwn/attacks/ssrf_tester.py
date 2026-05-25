@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 
 from mcpwn.core.findings import Finding
 

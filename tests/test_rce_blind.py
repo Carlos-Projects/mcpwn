@@ -1,7 +1,7 @@
 import asyncio
 
-from tests.conftest import make_tool, make_result
 from mcpwn.attacks.rce_blind_tester import scan_rce_blind
+from tests.conftest import make_result, make_tool
 
 
 async def test_rce_clean():

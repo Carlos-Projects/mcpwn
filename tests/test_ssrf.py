@@ -1,5 +1,5 @@
-from tests.conftest import make_tool, make_result
 from mcpwn.attacks.ssrf_tester import scan_ssrf
+from tests.conftest import make_result, make_tool
 
 
 async def test_ssrf_clean():

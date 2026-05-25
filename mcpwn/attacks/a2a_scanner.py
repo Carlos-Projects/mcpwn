@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from mcpwn.core.findings import Finding
 
-
 SUSPICIOUS_SKILL_NAMES = {
     "exec", "execute", "shell", "eval", "delete", "drop", "remove", "rm",
     "shutdown", "format", "wipe", "destroy", "purge", "dd", "mkfs", "reboot",

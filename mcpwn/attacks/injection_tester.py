@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 
 from mcpwn.core.findings import Finding
-
 
 INJECTION_PAYLOADS = [
     ("semicolon", "; echo MCPWN_SECURITY_TEST"),

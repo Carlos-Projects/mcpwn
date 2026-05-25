@@ -4,9 +4,9 @@ from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
+from rich.style import Style
 from rich.table import Table
 from rich.text import Text
-from rich.style import Style
 
 
 def generate_svg(output_path: Path):

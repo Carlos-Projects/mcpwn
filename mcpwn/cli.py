@@ -14,14 +14,14 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
+from mcpwn.attacks.a2a_scanner import scan_a2a_agent
 from mcpwn.attacks.injection_tester import (
     test_command_injection,
     test_path_traversal,
 )
-from mcpwn.attacks.ssrf_tester import scan_ssrf
 from mcpwn.attacks.rce_blind_tester import scan_rce_blind
+from mcpwn.attacks.ssrf_tester import scan_ssrf
 from mcpwn.attacks.tool_analysis import analyze_tools
-from mcpwn.attacks.a2a_scanner import scan_a2a_agent
 from mcpwn.core.findings import ScanResult
 from mcpwn.core.report import generate_html_report, save_json
 from mcpwn.utils.mcp_connect import connect_stdio

@@ -1,6 +1,6 @@
-from tests.conftest import make_tool
 from mcpwn.attacks.tool_analysis import analyze_tools
 from mcpwn.core.findings import Finding
+from tests.conftest import make_tool
 
 
 def test_clean_tool_no_findings():
