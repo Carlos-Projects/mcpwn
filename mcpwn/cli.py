@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
-import signal
 import subprocess
 import sys
 import tempfile
@@ -192,8 +190,16 @@ def demo(
         tmp_path.parent.rmdir()
     finally:
         try:
-            os.kill(proc.pid, signal.SIGTERM)
+            proc.terminate()
+            proc.wait(timeout=5)
         except ProcessLookupError:
+            pass
+        except Exception:
+            proc.kill()
+        try:
+            tmp_path.unlink(missing_ok=True)
+            tmp_path.parent.rmdir()
+        except Exception:
             pass
         console.print("[dim]Lab stopped, cleaned up.[/]")
 

@@ -13,7 +13,7 @@ MCPwn is an offensive security tool designed to find vulnerabilities in MCP serv
 If you discover a security vulnerability in MCPwn's own code (not in the targets it scans):
 
 - **Do not** open a public GitHub issue
-- **Do** email: carlos@example.com (replace with your email)
+- **Do** email: carlos@aiagentobservatory.org
 - **Do** expect acknowledgment within 48 hours
 
 ## Responsible Disclosure
