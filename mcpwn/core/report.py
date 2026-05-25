@@ -109,7 +109,7 @@ def generate_html_report(result_dict: dict, output_path: Path):
         if sev in summary:
             summary[sev] += 1
 
-    template = Template(HTML_TEMPLATE)
+    template = Template(HTML_TEMPLATE, autoescape=True)
     from datetime import datetime
     html = template.render(
         target=result_dict.get("target", "unknown"),

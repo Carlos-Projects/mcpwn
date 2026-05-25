@@ -36,11 +36,13 @@ jobs:
       - name: Run lab integration test
         run: |
           python -m mcpwn.lab.server --http --port 8080 &
+          LAB_PID=$!
           sleep 3
           mcpwn survey --url http://localhost:8080/mcp --output /tmp/results.json
+          kill $LAB_PID 2>/dev/null || true
           python -c "
           import json
           data = json.load(open('/tmp/results.json'))
           assert len(data['findings']) > 0, 'No findings detected'
           print(f'Integration test passed: {len(data[\"findings\"])} findings')
-          "
+          "  
