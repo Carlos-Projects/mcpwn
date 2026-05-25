@@ -113,7 +113,14 @@ def survey(
     target = stdio or url
     console.print(Panel(f"[bold cyan]MCPwn Security Survey[/]\n[dim]Target:[/] {target}", title="MCPwn"))
 
-    scan_result = asyncio.run(run_survey(url=url, stdio=stdio, no_injection=no_injection))
+    try:
+        scan_result = asyncio.run(run_survey(url=url, stdio=stdio, no_injection=no_injection))
+    except ConnectionRefusedError:
+        console.print("[red]Error: Connection refused.[/] Is the server running and accessible?")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/]")
+        raise typer.Exit(1)
 
     summary = scan_result.summary
     console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
@@ -223,15 +230,19 @@ def survey_a2a(
     """Survey an A2A agent by fetching and validating its agent card."""
     console.print(Panel(f"[bold cyan]MCPwn A2A Survey[/]\n[dim]Target:[/] {url}", title="MCPwn"))
 
-    async def run():
-        result = ScanResult(target=url)
-        console.print("\n[bold]Phase 1:[/] Fetching agent card...")
-        findings = await scan_a2a_agent(url)
-        result.findings.extend(findings)
-        console.print(f"  Found [yellow]{len(findings)}[/] finding(s)")
-        return result
+    try:
+        async def run():
+            result = ScanResult(target=url)
+            console.print("\n[bold]Phase 1:[/] Fetching agent card...")
+            findings = await scan_a2a_agent(url)
+            result.findings.extend(findings)
+            console.print(f"  Found [yellow]{len(findings)}[/] finding(s)")
+            return result
 
-    scan_result = asyncio.run(run())
+        scan_result = asyncio.run(run())
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/]")
+        raise typer.Exit(1)
 
     summary = scan_result.summary
     console.print(f"\n[bold]Summary:[/] {summary['total']} total finding(s)")
