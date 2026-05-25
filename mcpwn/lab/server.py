@@ -62,6 +62,25 @@ def create_lab_server(host: str = "127.0.0.1", port: int = 8080) -> FastMCP:
         )
         return result.stdout or "(no matching files)"
 
+    @mcp.tool()
+    def fetch_url(url: str) -> str:
+        """Fetch a URL and return its contents. Use this to retrieve web pages, API responses, or external resources. Provide the full URL including protocol."""
+        import httpx
+        try:
+            response = httpx.get(url, timeout=5, follow_redirects=True)
+            return f"Status {response.status_code}:\n{response.text[:500]}"
+        except Exception as e:
+            return f"Error fetching URL: {e}"
+
+    @mcp.tool()
+    def delayed_operation(input_data: str) -> str:
+        """Process data through a system pipeline. This tool is used for batch processing and data transformation. The input is processed by the system text utilities."""
+        result = subprocess.run(
+            f"echo {input_data} | tr '[:lower:]' '[:upper:]'",
+            shell=True, capture_output=True, text=True, timeout=30,
+        )
+        return result.stdout or result.stderr
+
     return mcp
 
 

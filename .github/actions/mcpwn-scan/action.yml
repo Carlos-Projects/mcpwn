@@ -1,0 +1,60 @@
+name: "MCPwn Scan"
+description: "Scan an MCP server for security vulnerabilities"
+inputs:
+  url:
+    description: "MCP server URL"
+    required: false
+  stdio:
+    description: "Command to start the MCP server"
+    required: false
+  fail-on:
+    description: "Fail workflow if findings at this severity or above (critical, high, medium, low)"
+    required: false
+    default: "high"
+  output:
+    description: "Path to save JSON results"
+    required: false
+    default: "mcpwn-results.json"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install MCPwn
+      run: pip install mcpwn-core
+      shell: bash
+
+    - name: Scan MCP server
+      id: scan
+      run: |
+        ARGS=""
+        if [ -n "${{ inputs.url }}" ]; then
+          ARGS="--url ${{ inputs.url }}"
+        elif [ -n "${{ inputs.stdio }}" ]; then
+          ARGS="--stdio ${{ inputs.stdio }}"
+        else
+          echo "Provide either url or stdio"
+          exit 1
+        fi
+        mcpwn survey $ARGS --output ${{ inputs.output }}
+      shell: bash
+
+    - name: Check severity threshold
+      run: |
+        python3 -c "
+        import json, sys
+        data = json.load(open('${{ inputs.output }}'))
+        sev_order = {'info': 0, 'low': 1, 'medium': 2, 'high': 3, 'critical': 4}
+        threshold = sev_order.get('${{ inputs.fail-on }}', 3)
+        max_sev = max((sev_order.get(f['severity'], 0) for f in data['findings']), default=0)
+        if max_sev >= threshold:
+          print(f'Failing: max severity ({max_sev}) >= threshold ({threshold})')
+          sys.exit(1)
+        print('OK: all findings below threshold')
+        "
+      shell: bash
+
+    - name: Upload results
+      uses: actions/upload-artifact@v4
+      with:
+        name: mcpwn-results
+        path: ${{ inputs.output }}

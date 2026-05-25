@@ -11,6 +11,8 @@ Offensive security testing framework for [MCP (Model Context Protocol)](https://
 
 Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** MCP servers by sending real attack payloads and analyzing responses. Includes a deliberately vulnerable lab server for practice.
 
+![MCPwn Demo](docs/demo.svg)
+
 ## Quick demo
 
 ```bash
@@ -120,6 +122,8 @@ Summary: 15 total finding(s)
 
 - **Command injection**: Tests 5 payload types (`;`, `&&`, `|`, `$()`, backtick) against each string parameter. Confirms via response marker detection.
 - **Path traversal**: Tests `../../../etc/passwd` patterns on file-related parameters
+- **SSRF**: Tests URL-accepting tools with internal addresses (127.0.0.1, cloud metadata endpoints)
+- **Blind RCE**: Detects command execution via timing-based analysis (`sleep`, `ping` payloads)
 
 ## Security warnings
 
@@ -138,6 +142,8 @@ The lab (`mcpwn lab`) starts a deliberately vulnerable MCP server for security t
 | `search_database` | SQL injection | Direct query interpolation |
 | `system_update` | Command injection | Shell interpolation of version param |
 | `delete_logs` | Argument injection | Shell interpolation of pattern param |
+| `fetch_url` | SSRF | Accepts arbitrary URLs including internal addresses |
+| `delayed_operation` | Blind RCE | Shell interpolation with timing-based detection |
 
 ## Architecture
 
@@ -179,6 +185,15 @@ mcpwn/
 ```bash
 pip install -e ".[dev]"
 pytest -v
+```
+
+## GitHub Action
+
+```yaml
+- uses: Carlos-Projects/mcpwn/.github/actions/mcpwn-scan@main
+  with:
+    url: http://localhost:8080/mcp
+    fail-on: high
 ```
 
 ## License
