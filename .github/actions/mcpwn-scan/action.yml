@@ -25,26 +25,31 @@ runs:
 
     - name: Scan MCP server
       id: scan
+      env:
+        MCPWN_URL: ${{ inputs.url }}
+        MCPWN_STDIO: ${{ inputs.stdio }}
+        MCPWN_OUTPUT: ${{ inputs.output }}
       run: |
-        ARGS=""
-        if [ -n "${{ inputs.url }}" ]; then
-          ARGS="--url ${{ inputs.url }}"
-        elif [ -n "${{ inputs.stdio }}" ]; then
-          ARGS="--stdio ${{ inputs.stdio }}"
+        if [ -n "$MCPWN_URL" ]; then
+          mcpwn survey --url "$MCPWN_URL" --output "$MCPWN_OUTPUT"
+        elif [ -n "$MCPWN_STDIO" ]; then
+          mcpwn survey --stdio "$MCPWN_STDIO" --output "$MCPWN_OUTPUT"
         else
           echo "Provide either url or stdio"
           exit 1
         fi
-        mcpwn survey $ARGS --output ${{ inputs.output }}
       shell: bash
 
     - name: Check severity threshold
+      env:
+        MCPWN_OUTPUT: ${{ inputs.output }}
+        MCPWN_FAIL_ON: ${{ inputs.fail-on }}
       run: |
         python3 -c "
-        import json, sys
-        data = json.load(open('${{ inputs.output }}'))
+        import json, sys, os
+        data = json.load(open(os.environ['MCPWN_OUTPUT']))
         sev_order = {'info': 0, 'low': 1, 'medium': 2, 'high': 3, 'critical': 4}
-        threshold = sev_order.get('${{ inputs.fail-on }}', 3)
+        threshold = sev_order.get(os.environ['MCPWN_FAIL_ON'], 3)
         max_sev = max((sev_order.get(f['severity'], 0) for f in data['findings']), default=0)
         if max_sev >= threshold:
           print(f'Failing: max severity ({max_sev}) >= threshold ({threshold})')
