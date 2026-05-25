@@ -38,6 +38,13 @@ SUSPICIOUS_DESCRIPTION_PATTERNS = [
     (r"(the\s+)?user\s+is\s+(always|admin|root|god)", "Claims of special user status"),
     (r"skip\s+(validation|check|verification|auth)", "Bypass security controls"),
     (r"bypass\s+(security|validation|auth|check)", "Bypass security controls"),
+    # Anti-scanning / anti-analysis patterns
+    (r"(this\s+)?tool\s+is\s+(safe|benign|harmless)", "Self-proclaimed safe tool (social engineering)"),
+    (r"(is\s+)?not\s+(malicious|dangerous|harmful)", "Claims of non-malicious intent"),
+    (r"do\s+not\s+(scan|analyze|audit|inspect)", "Instructions to avoid security analysis"),
+    (r"skip\s+(me|this|scanning)", "Attempt to bypass scanning"),
+    (r"false\s+(positive|alarm)", "Dismisses potential findings in advance"),
+    (r"(this|the)\s+is\s+(a\s+)?(legitimate|required|necessary)\s+(tool|command|operation)", "Claims of legitimacy to avoid scrutiny"),
 ]
 
 COMMON_MCP_TOOLS = {

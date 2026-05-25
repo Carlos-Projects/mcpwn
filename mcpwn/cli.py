@@ -28,6 +28,8 @@ console = Console()
 app = typer.Typer(name="mcpwn", help="Offensive security testing framework for MCP protocols")
 
 SEVERITY_COLORS = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}
+MAX_TOOLS = 500
+MAX_RESOURCES = 500
 
 
 def print_results(scan_result: ScanResult, output: Path | None, html: Path | None):
@@ -74,6 +76,10 @@ async def run_survey(
         tools_result = await session.list_tools()
         tools = tools_result.tools
         console.print(f"  Found [green]{len(tools)}[/] tool(s)")
+
+        if len(tools) > MAX_TOOLS:
+            console.print(f"  [yellow]Warning: truncated to {MAX_TOOLS} tools (DoS prevention)[/]")
+            tools = tools[:MAX_TOOLS]
 
         if not tools:
             console.print("[yellow]  No tools to analyze.[/]")

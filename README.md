@@ -125,6 +125,20 @@ Summary: 15 total finding(s)
 - **SSRF**: Tests URL-accepting tools with internal addresses (127.0.0.1, cloud metadata endpoints)
 - **Blind RCE**: Detects command execution via timing-based analysis (`sleep`, `ping` payloads)
 
+## Security Posture
+
+MCPwn addresses the following threat categories from the 2026 AI security landscape:
+
+| Threat | Source | MCPwn coverage |
+|---|---|---|
+| MCP server tool poisoning | [arXiv 2601.17549](https://arxiv.org/abs/2601.17549) | `tool_analysis` — detects malicious names, descriptions, schemas |
+| Malicious agent skills (A2A) | [Google GTIG Report](https://cloud.google.com/blog/topics/threat-intelligence/ai-vulnerability-exploitation-initial-access) | `a2a_scanner` — validates agent cards, flags suspicious skills |
+| Command injection via MCP tools | OWASP LLM Top 10 | `injection_tester` — 5 payload types, marker confirmation |
+| SSRF via tool parameters | [CrowdStrike 2026 GTR](https://www.crowdstrike.com/en-us/global-threat-report) | `ssrf_tester` — internal address probing |
+| Blind RCE | MITRE ATLAS AML.T0054 | `rce_blind_tester` — timing-based detection |
+| AI supply chain attacks | [CISA Secure AI](https://www.cisa.gov) | Input size limits, format validation |
+| Anti-scanning manipulation | Adversa AI / Claude Code research | Description pattern analysis |
+
 ## Security warnings
 
 > **⚠️ The lab server is intentionally vulnerable.** Never deploy it to production, expose it to a network other than localhost, or run it on a machine with sensitive data. It contains deliberate command injection, SQL injection, and path traversal vulnerabilities for educational purposes.
