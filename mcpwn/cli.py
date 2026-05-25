@@ -70,26 +70,26 @@ async def run_survey(
             async def call_tool(name, arguments):
                 return await session.call_tool(name, arguments)
 
-                for tool in tools:
-                    cmd_findings = await test_command_injection(tool, call_tool)
-                    result.findings.extend(cmd_findings)
-                    if cmd_findings:
-                        console.print(f"  [red]![/] {tool.name}: {len(cmd_findings)} command injection vector(s)")
+            for tool in tools:
+                cmd_findings = await test_command_injection(tool, call_tool)
+                result.findings.extend(cmd_findings)
+                if cmd_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(cmd_findings)} command injection vector(s)")
 
-                    path_findings = await test_path_traversal(tool, call_tool)
-                    result.findings.extend(path_findings)
-                    if path_findings:
-                        console.print(f"  [red]![/] {tool.name}: {len(path_findings)} path traversal vector(s)")
+                path_findings = await test_path_traversal(tool, call_tool)
+                result.findings.extend(path_findings)
+                if path_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(path_findings)} path traversal vector(s)")
 
-                    ssrf_findings = await scan_ssrf(tool, call_tool)
-                    result.findings.extend(ssrf_findings)
-                    if ssrf_findings:
-                        console.print(f"  [red]![/] {tool.name}: {len(ssrf_findings)} SSRF vector(s)")
+                ssrf_findings = await scan_ssrf(tool, call_tool)
+                result.findings.extend(ssrf_findings)
+                if ssrf_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(ssrf_findings)} SSRF vector(s)")
 
-                    rce_findings = await scan_rce_blind(tool, call_tool)
-                    result.findings.extend(rce_findings)
-                    if rce_findings:
-                        console.print(f"  [red]![/] {tool.name}: {len(rce_findings)} blind RCE vector(s)")
+                rce_findings = await scan_rce_blind(tool, call_tool)
+                result.findings.extend(rce_findings)
+                if rce_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(rce_findings)} blind RCE vector(s)")
 
             total_active = len(result.findings) - len(findings)
             console.print(f"  Found [red]{total_active}[/] active findings")
@@ -164,8 +164,8 @@ def demo(
         url = f"http://127.0.0.1:{port}/mcp"
         scan_result = asyncio.run(run_survey(url=url, no_injection=False))
 
-        tmp = Path(tempfile.mktemp(suffix=".json"))
-        save_json(scan_result.to_dict(), tmp)
+        tmp_path = Path(tempfile.mkdtemp()) / "results.json"
+        save_json(scan_result.to_dict(), tmp_path)
 
         summary = scan_result.summary
         console.print(f"\n[bold]Demo complete:[/] {summary['total']} findings detected")
@@ -173,9 +173,13 @@ def demo(
             color = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}.get(sev, "white")
             console.print(f"  [{color}]{sev}: {count}[/]")
 
-        os.unlink(tmp)
+        tmp_path.unlink(missing_ok=True)
+        tmp_path.parent.rmdir()
     finally:
-        os.kill(proc.pid, signal.SIGTERM)
+        try:
+            os.kill(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
         console.print("[dim]Lab stopped, cleaned up.[/]")
 
 

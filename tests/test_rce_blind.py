@@ -18,7 +18,7 @@ async def test_rce_delayed_detected():
     tool = make_tool("process", "Process data through system", {"data": {"type": "string", "description": "Input"}})
 
     async def slow_mock(name, args):
-        await asyncio.sleep(3)
+        await asyncio.sleep(2.1)
         return make_result("done")
 
     findings = await scan_rce_blind(tool, slow_mock)
