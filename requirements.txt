@@ -1,0 +1,11 @@
+-e git+https://github.com/Carlos-Projects/mcpguard.git@8b734c4599c7dc5b1c6f5fd16fc13490ffc15a4d#egg=mcpguard
+-e git+https://github.com/Carlos-Projects/mcpguard.git@8b734c4599c7dc5b1c6f5fd16fc13490ffc15a4d#egg=mcpguard_proxy
+-e git+https://github.com/Carlos-Projects/mcpscope.git@b4ccff4e92a2d565893472f6096c12b8ead83426#egg=mcpscope
+-e git+https://github.com/Carlos-Projects/mcpwn.git@f28cdfa867b6e9d40426c6ce251edb47a884675d#egg=mcpwn
+Jinja2==3.1.6
+httpx-sse==0.4.3
+httpx==0.28.1
+mcp==1.27.1
+pytest-httpx==0.36.2
+rich==14.3.4
+typer==0.25.1

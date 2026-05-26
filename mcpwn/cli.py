@@ -17,9 +17,12 @@ from mcpwn.attacks.injection_tester import (
     test_command_injection,
     test_path_traversal,
 )
+from mcpwn.attacks.prompt_fuzzer import fuzz_prompt_injection
 from mcpwn.attacks.rce_blind_tester import scan_rce_blind
+from mcpwn.attacks.sqli_tester import scan_sql_injection
 from mcpwn.attacks.ssrf_tester import scan_ssrf
 from mcpwn.attacks.tool_analysis import analyze_tools
+from mcpwn.attacks.tool_poisoning_fuzzer import fuzz_tool_poisoning
 from mcpwn.core.findings import ScanResult
 from mcpwn.core.report import generate_html_report, save_json
 from mcpwn.utils.mcp_connect import connect_stdio
@@ -119,6 +122,21 @@ async def run_survey(
                 result.findings.extend(rce_findings)
                 if rce_findings:
                     console.print(f"  [red]![/] {tool.name}: {len(rce_findings)} blind RCE vector(s)")
+
+                sqli_findings = await scan_sql_injection(tool, call_tool)
+                result.findings.extend(sqli_findings)
+                if sqli_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(sqli_findings)} SQL injection vector(s)")
+
+                prompt_findings = await fuzz_prompt_injection(tool, call_tool)
+                result.findings.extend(prompt_findings)
+                if prompt_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(prompt_findings)} prompt injection vector(s)")
+
+                poison_findings = await fuzz_tool_poisoning(tool, call_tool)
+                result.findings.extend(poison_findings)
+                if poison_findings:
+                    console.print(f"  [red]![/] {tool.name}: {len(poison_findings)} tool poisoning vector(s)")
 
             total_active = len(result.findings) - len(findings)
             console.print(f"  Found [red]{total_active}[/] active findings")
