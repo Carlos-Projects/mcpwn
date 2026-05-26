@@ -62,6 +62,7 @@ async def run_survey(
     url: str | None = None,
     stdio: str | None = None,
     no_injection: bool = False,
+    yes: bool = False,
 ) -> ScanResult:
     target = stdio or url or "unknown"
 
@@ -70,7 +71,7 @@ async def run_survey(
         ctx = connect_http(url)
     else:
         parts = stdio.split()
-        ctx = connect_stdio(parts[0], parts[1:] if len(parts) > 1 else None)
+        ctx = connect_stdio(parts[0], parts[1:] if len(parts) > 1 else None, yes=yes)
 
     async with ctx as session:
         result = ScanResult(target=target)
@@ -151,6 +152,7 @@ def survey(
     output: Path = typer.Option(None, "--output", "-o", help="Save results to JSON file"),
     html: Path = typer.Option(None, "--html", help="Generate HTML report"),
     no_injection: bool = typer.Option(False, "--no-injection", help="Skip active injection tests"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip stdio command warning (for CI/automated use)"),
 ):
     """Survey an MCP server for security vulnerabilities."""
     if not stdio and not url:
@@ -161,7 +163,7 @@ def survey(
     console.print(Panel(f"[bold cyan]MCPwn Security Survey[/]\n[dim]Target:[/] {target}", title="MCPwn"))
 
     try:
-        scan_result = asyncio.run(run_survey(url=url, stdio=stdio, no_injection=no_injection))
+        scan_result = asyncio.run(run_survey(url=url, stdio=stdio, no_injection=no_injection, yes=yes))
     except ConnectionRefusedError:
         console.print("[red]Error: Connection refused.[/] Is the server running and accessible?")
         raise typer.Exit(1)

@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import ipaddress
+import socket
+from urllib.parse import urlparse
+
 from mcpwn.core.findings import Finding
 
 SUSPICIOUS_SKILL_NAMES = {
@@ -20,6 +24,69 @@ async def scan_a2a_agent(url: str, client=None) -> list[Finding]:
         close_client = True
 
     try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            findings.append(Finding(
+                id="A2A-URL-SCHEME",
+                title="Invalid URL scheme",
+                severity="high",
+                attack_type="a2a_misconfiguration",
+                target=url,
+                description=f"URL scheme '{parsed.scheme}' is not allowed. Only http and https are permitted.",
+                detail="Blocked non-HTTP scheme to prevent SSRF/protocol confusion attacks.",
+                recommendation="Ensure the agent URL uses http or https.",
+                evidence={"url": url, "scheme": parsed.scheme},
+            ))
+            return findings
+
+        hostname = parsed.hostname
+        try:
+            addr = socket.getaddrinfo(hostname, None)[0][4][0]
+        except Exception:
+            findings.append(Finding(
+                id="A2A-URL-RESOLVE",
+                title="Could not resolve agent URL hostname",
+                severity="high",
+                attack_type="a2a_misconfiguration",
+                target=url,
+                description=f"Could not resolve hostname '{hostname}'.",
+                detail="DNS resolution failed for the agent URL.",
+                recommendation="Verify the agent URL is correct and the hostname is resolvable.",
+                evidence={"url": url, "hostname": hostname},
+            ))
+            return findings
+
+        try:
+            ip = ipaddress.ip_address(addr)
+        except ValueError:
+            findings.append(Finding(
+                id="A2A-URL-IP",
+                title="Could not parse resolved IP address",
+                severity="high",
+                attack_type="a2a_misconfiguration",
+                target=url,
+                description=f"Resolved address '{addr}' is not a valid IP address.",
+                detail="Cannot validate the resolved IP address.",
+                recommendation="Verify the agent URL points to a valid public IP address.",
+                evidence={"url": url, "resolved": addr},
+            ))
+            return findings
+
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_reserved:
+            findings.append(Finding(
+                id="A2A-URL-PRIVATE",
+                title="Agent URL resolves to a private/internal IP address",
+                severity="critical",
+                attack_type="a2a_misconfiguration",
+                target=url,
+                description=f"Agent URL resolves to {addr} which is a private/internal IP range.",
+                detail=f"Resolved address: {addr} (private={ip.is_private}, loopback={ip.is_loopback}). "
+                       "Blocked to prevent SSRF attacks against internal infrastructure.",
+                recommendation="Ensure the agent URL points to a public, routable IP address.",
+                evidence={"url": url, "resolved": addr, "is_private": ip.is_private},
+            ))
+            return findings
+
         base = url.rstrip("/")
         card_url = base + "/.well-known/agent-card.json"
 

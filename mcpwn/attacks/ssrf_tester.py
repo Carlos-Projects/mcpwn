@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from mcp.types import TextContent, Tool
 
 from mcpwn.core.findings import Finding
@@ -25,7 +27,7 @@ async def scan_ssrf(tool: Tool, call_tool_fn) -> list[Finding]:
             if any(kw in desc for kw in ["url", "uri", "link", "endpoint", "host", "fetch", "get"]):
                 for payload_name, payload in SSRF_PAYLOADS:
                     try:
-                        result = await call_tool_fn(tool.name, {param_name: payload})
+                        result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
                         content = result.content if result else []
                         for c in content:
                             if isinstance(c, TextContent) and c.text:

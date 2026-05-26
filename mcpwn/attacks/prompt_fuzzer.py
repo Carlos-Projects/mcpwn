@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from mcp.types import TextContent, Tool
@@ -201,7 +202,7 @@ async def fuzz_prompt_injection(tool: Tool, call_tool_fn) -> list[Finding]:
                     else:
                         pass
 
-                result = await call_tool_fn(tool.name, arguments)
+                result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
                 if result and not result.isError:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:

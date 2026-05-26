@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import re
+import asyncio
 from typing import Any
 
 from mcp.types import TextContent, Tool
@@ -143,7 +143,7 @@ async def _test_shadow_variants(tool: Tool, call_tool_fn) -> list[Finding]:
                             arguments[p_name] = False
 
                 if arguments:
-                    result = await call_tool_fn(shadow_name, arguments)
+                    result = await asyncio.wait_for(call_tool_fn(shadow_name, arguments), timeout=15)
                     if result and not result.isError:
                         for c in (result.content or []):
                             if isinstance(c, TextContent) and c.text:
@@ -204,7 +204,7 @@ async def _test_schema_injection(tool: Tool, call_tool_fn) -> list[Finding]:
                             case _:
                                 arguments[p] = "test"
 
-                result = await call_tool_fn(tool.name, arguments)
+                result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
                 if result and not result.isError:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:
@@ -238,7 +238,6 @@ async def _test_description_reflection(tool: Tool, call_tool_fn) -> list[Finding
 
     for injection_name, schema in SCHEMA_INJECTIONS:
         try:
-            dummy_tool_name = f"_{tool.name}_test_inject"
             arguments: dict[str, Any] = {}
             props = schema.get("properties", {})
             required = schema.get("required", [])
@@ -257,7 +256,7 @@ async def _test_description_reflection(tool: Tool, call_tool_fn) -> list[Finding
                     elif p_type == "object":
                         arguments[p_name] = {}
 
-            result = await call_tool_fn(tool.name, arguments)
+            result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
             if result and not result.isError:
                 for c in (result.content or []):
                     if isinstance(c, TextContent) and c.text:
@@ -272,7 +271,7 @@ async def _test_description_reflection(tool: Tool, call_tool_fn) -> list[Finding
                                     attack_type="tool_poisoning_fuzz",
                                     target=tool.name,
                                     description=f"Tool accepted and reflected schema-injection payload ({injection_name}).",
-                                    detail=f"This tool processed arguments with potentially malicious schema definitions.",
+                                    detail="This tool processed arguments with potentially malicious schema definitions.",
                                     recommendation="Validate all input fields against a strict allowlist. Strip hidden/private fields.",
                                     evidence={
                                         "tool": tool.name,

@@ -1,6 +1,8 @@
 services:
   lab:
     build: .
+    # SECURITY: bind only to loopback to prevent external network access to the
+    # vulnerable lab server. Do not change to 0.0.0.0 or omit the 127.0.0.1 prefix.
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     command: ["lab", "--http", "--port", "8080"]

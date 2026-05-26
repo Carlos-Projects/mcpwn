@@ -5,10 +5,16 @@ from contextlib import asynccontextmanager
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.streamable_http import streamable_http_client
+from rich.console import Console
 
 
 @asynccontextmanager
-async def connect_stdio(command: str, args: list[str] | None = None):
+async def connect_stdio(command: str, args: list[str] | None = None, yes: bool = False):
+    cmd_display = command + (" " + " ".join(args) if args else "")
+    if not yes:
+        Console().print(f"\n[bold red][!] WARNING: About to execute arbitrary command: {cmd_display}[/]")
+        Console().print("[bold yellow][!] Only proceed if you trust this command.[/]")
+        Console().print("[bold yellow][!] Use --yes to skip this warning.[/]\n")
     params = StdioServerParameters(
         command=command,
         args=args or [],

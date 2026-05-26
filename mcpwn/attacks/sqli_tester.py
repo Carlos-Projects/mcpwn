@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from mcp.types import TextContent, Tool
 
 from mcpwn.core.findings import Finding
@@ -31,7 +33,7 @@ async def scan_sql_injection(tool: Tool, call_tool_fn) -> list[Finding]:
 
         for payload_name, payload in SQLI_PAYLOADS:
             try:
-                result = await call_tool_fn(tool.name, {param_name: payload})
+                result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
                 if result and not result.isError:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:

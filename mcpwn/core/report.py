@@ -101,6 +101,19 @@ footer { text-align: center; color: #484f58; margin-top: 48px; padding: 24px; fo
 </html>"""
 
 
+EVIDENCE_MAX_LENGTH = 500
+
+
+def _sanitize_evidence(value, max_len: int = EVIDENCE_MAX_LENGTH):
+    if isinstance(value, str):
+        return value[:max_len] + ("..." if len(value) > max_len else "")
+    if isinstance(value, dict):
+        return {k: _sanitize_evidence(v, max_len) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_evidence(v, max_len) for v in value]
+    return value
+
+
 def generate_html_report(result_dict: dict, output_path: Path):
     findings = result_dict.get("findings", [])
     summary = {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -108,6 +121,8 @@ def generate_html_report(result_dict: dict, output_path: Path):
         sev = f.get("severity", "low")
         if sev in summary:
             summary[sev] += 1
+        if "evidence" in f:
+            f["evidence"] = _sanitize_evidence(f["evidence"])
 
     template = Template(HTML_TEMPLATE, autoescape=True)
     from datetime import datetime
@@ -116,6 +131,12 @@ def generate_html_report(result_dict: dict, output_path: Path):
         date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         findings=findings,
         summary=summary,
+    )
+    html = html.replace(
+        '<div class="finding-rec"><strong>Recommendation:</strong>',
+        '<div class="finding-note" style="color:#8b949e;font-size:0.85em;margin-top:8px;">Note: Some evidence values have been truncated to '
+        + str(EVIDENCE_MAX_LENGTH)
+        + ' characters to protect sensitive data.</div>\n<div class="finding-rec"><strong>Recommendation:</strong>',
     )
     output_path.write_text(html)
     return output_path

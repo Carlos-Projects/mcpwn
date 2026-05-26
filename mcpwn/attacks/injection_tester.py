@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from mcp.types import TextContent, Tool
 
 from mcpwn.core.findings import Finding
@@ -62,7 +64,7 @@ async def test_command_injection(
                     else:
                         pass
 
-                result = await call_tool_fn(tool.name, arguments)
+                result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
 
                 if result and not result.isError:
                     for c in (result.content or []):
@@ -104,7 +106,7 @@ async def test_path_traversal(
             if any(kw in desc for kw in ["path", "file", "dir", "folder", "location"]):
                 for payload in PATH_TRAVERSAL_PAYLOADS:
                     try:
-                        result = await call_tool_fn(tool.name, {param_name: payload})
+                        result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
                         content = result.content if result else []
                         for c in content:
                             if isinstance(c, TextContent) and c.text and len(c.text) > 20:

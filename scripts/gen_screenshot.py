@@ -1,12 +1,9 @@
 """Generate a terminal SVG screenshot of mcpwn demo output."""
-import asyncio
 from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
-from rich.style import Style
 from rich.table import Table
-from rich.text import Text
 
 
 def generate_svg(output_path: Path):

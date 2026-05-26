@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import time
 
 from mcp.types import Tool
@@ -27,7 +28,7 @@ async def scan_rce_blind(tool: Tool, call_tool_fn) -> list[Finding]:
             for payload_name, payload in RCE_PAYLOADS:
                 try:
                     start = time.monotonic()
-                    result = await call_tool_fn(tool.name, {param_name: payload})
+                    result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
                     elapsed = time.monotonic() - start
 
                     if elapsed >= THRESHOLD and not getattr(result, "isError", False):
