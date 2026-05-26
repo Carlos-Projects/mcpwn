@@ -28,9 +28,16 @@ from mcpwn.core.report import generate_html_report, save_json
 from mcpwn.utils.mcp_connect import connect_stdio
 
 console = Console()
-app = typer.Typer(name="mcpwn", help="Offensive security testing framework for MCP protocols")
+app = typer.Typer(
+    name="mcpwn", help="Offensive security testing framework for MCP protocols"
+)
 
-SEVERITY_COLORS = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}
+SEVERITY_COLORS = {
+    "critical": "red",
+    "high": "yellow",
+    "medium": "blue",
+    "low": "green",
+}
 MAX_TOOLS = 500
 MAX_RESOURCES = 500
 
@@ -68,8 +75,10 @@ async def run_survey(
 
     if url:
         from mcpwn.utils.mcp_connect import connect_http
+
         ctx = connect_http(url)
     else:
+        assert stdio is not None
         parts = stdio.split()
         ctx = connect_stdio(parts[0], parts[1:] if len(parts) > 1 else None, yes=yes)
 
@@ -82,7 +91,9 @@ async def run_survey(
         console.print(f"  Found [green]{len(tools)}[/] tool(s)")
 
         if len(tools) > MAX_TOOLS:
-            console.print(f"  [yellow]Warning: truncated to {MAX_TOOLS} tools (DoS prevention)[/]")
+            console.print(
+                f"  [yellow]Warning: truncated to {MAX_TOOLS} tools (DoS prevention)[/]"
+            )
             tools = tools[:MAX_TOOLS]
 
         if not tools:
@@ -90,9 +101,13 @@ async def run_survey(
             return result
 
         for t in tools:
-            console.print(f"    [dim]\u2022[/] {t.name}: {t.description or '(no description)'}")
+            console.print(
+                f"    [dim]\u2022[/] {t.name}: {t.description or '(no description)'}"
+            )
 
-        console.print("\n[bold]Phase 2:[/] Passive analysis (tool poisoning detection)...")
+        console.print(
+            "\n[bold]Phase 2:[/] Passive analysis (tool poisoning detection)..."
+        )
         findings = analyze_tools(tools)
         result.findings.extend(findings)
         console.print(f"  Found [yellow]{len(findings)}[/] passive findings")
@@ -107,37 +122,51 @@ async def run_survey(
                 cmd_findings = await test_command_injection(tool, call_tool)
                 result.findings.extend(cmd_findings)
                 if cmd_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(cmd_findings)} command injection vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(cmd_findings)} command injection vector(s)"
+                    )
 
                 path_findings = await test_path_traversal(tool, call_tool)
                 result.findings.extend(path_findings)
                 if path_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(path_findings)} path traversal vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(path_findings)} path traversal vector(s)"
+                    )
 
                 ssrf_findings = await scan_ssrf(tool, call_tool)
                 result.findings.extend(ssrf_findings)
                 if ssrf_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(ssrf_findings)} SSRF vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(ssrf_findings)} SSRF vector(s)"
+                    )
 
                 rce_findings = await scan_rce_blind(tool, call_tool)
                 result.findings.extend(rce_findings)
                 if rce_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(rce_findings)} blind RCE vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(rce_findings)} blind RCE vector(s)"
+                    )
 
                 sqli_findings = await scan_sql_injection(tool, call_tool)
                 result.findings.extend(sqli_findings)
                 if sqli_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(sqli_findings)} SQL injection vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(sqli_findings)} SQL injection vector(s)"
+                    )
 
                 prompt_findings = await fuzz_prompt_injection(tool, call_tool)
                 result.findings.extend(prompt_findings)
                 if prompt_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(prompt_findings)} prompt injection vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(prompt_findings)} prompt injection vector(s)"
+                    )
 
                 poison_findings = await fuzz_tool_poisoning(tool, call_tool)
                 result.findings.extend(poison_findings)
                 if poison_findings:
-                    console.print(f"  [red]![/] {tool.name}: {len(poison_findings)} tool poisoning vector(s)")
+                    console.print(
+                        f"  [red]![/] {tool.name}: {len(poison_findings)} tool poisoning vector(s)"
+                    )
 
             total_active = len(result.findings) - len(findings)
             console.print(f"  Found [red]{total_active}[/] active findings")
@@ -147,12 +176,24 @@ async def run_survey(
 
 @app.command()
 def survey(
-    stdio: str = typer.Option(None, "--stdio", help="Command to start the MCP server (e.g. 'uv run server.py')"),
-    url: str = typer.Option(None, "--url", help="MCP server URL (e.g. http://localhost:8080/mcp)"),
-    output: Path = typer.Option(None, "--output", "-o", help="Save results to JSON file"),
+    stdio: str = typer.Option(
+        None,
+        "--stdio",
+        help="Command to start the MCP server (e.g. 'uv run server.py')",
+    ),
+    url: str = typer.Option(
+        None, "--url", help="MCP server URL (e.g. http://localhost:8080/mcp)"
+    ),
+    output: Path = typer.Option(
+        None, "--output", "-o", help="Save results to JSON file"
+    ),
     html: Path = typer.Option(None, "--html", help="Generate HTML report"),
-    no_injection: bool = typer.Option(False, "--no-injection", help="Skip active injection tests"),
-    yes: bool = typer.Option(False, "--yes", "-y", help="Skip stdio command warning (for CI/automated use)"),
+    no_injection: bool = typer.Option(
+        False, "--no-injection", help="Skip active injection tests"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Skip stdio command warning (for CI/automated use)"
+    ),
 ):
     """Survey an MCP server for security vulnerabilities."""
     if not stdio and not url:
@@ -160,12 +201,21 @@ def survey(
         raise typer.Exit(1)
 
     target = stdio or url
-    console.print(Panel(f"[bold cyan]MCPwn Security Survey[/]\n[dim]Target:[/] {target}", title="MCPwn"))
+    console.print(
+        Panel(
+            f"[bold cyan]MCPwn Security Survey[/]\n[dim]Target:[/] {target}",
+            title="MCPwn",
+        )
+    )
 
     try:
-        scan_result = asyncio.run(run_survey(url=url, stdio=stdio, no_injection=no_injection, yes=yes))
+        scan_result = asyncio.run(
+            run_survey(url=url, stdio=stdio, no_injection=no_injection, yes=yes)
+        )
     except ConnectionRefusedError:
-        console.print("[red]Error: Connection refused.[/] Is the server running and accessible?")
+        console.print(
+            "[red]Error: Connection refused.[/] Is the server running and accessible?"
+        )
         raise typer.Exit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/]")
@@ -179,15 +229,22 @@ def demo(
     port: int = typer.Option(8080, "--port", "-p", help="Port for lab server"),
 ):
     """Run a complete demo: start lab, scan it, show findings, clean up."""
-    console.print(Panel("[bold cyan]MCPwn Demo[/]\nStarting lab server \u2192 Scanning \u2192 Reporting", title="MCPwn"))
+    console.print(
+        Panel(
+            "[bold cyan]MCPwn Demo[/]\nStarting lab server \u2192 Scanning \u2192 Reporting",
+            title="MCPwn",
+        )
+    )
 
     proc = subprocess.Popen(
         [sys.executable, "-m", "mcpwn.lab.server", "--http", "--port", str(port)],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
     try:
         import httpx
+
         for _ in range(15):
             time.sleep(1)
             try:
@@ -209,7 +266,12 @@ def demo(
         summary = scan_result.summary
         console.print(f"\n[bold]Demo complete:[/] {summary['total']} findings detected")
         for sev, count in sorted(summary["by_severity"].items()):
-            color = {"critical": "red", "high": "yellow", "medium": "blue", "low": "green"}.get(sev, "white")
+            color = {
+                "critical": "red",
+                "high": "yellow",
+                "medium": "blue",
+                "low": "green",
+            }.get(sev, "white")
             console.print(f"  [{color}]{sev}: {count}[/]")
 
         tmp_path.unlink(missing_ok=True)
@@ -232,16 +294,24 @@ def demo(
 
 @app.command()
 def lab(
-    http: bool = typer.Option(False, "--http", help="Run as HTTP server instead of stdio"),
+    http: bool = typer.Option(
+        False, "--http", help="Run as HTTP server instead of stdio"
+    ),
     port: int = typer.Option(8080, "--port", "-p", help="Port for HTTP server"),
 ):
     """Start the MCPwn vulnerable lab server for practice."""
     if http:
-        console.print(f"[bold green]MCPwn Lab[/] running on [underline]http://localhost:{port}/mcp[/]")
-        console.print(f"In another terminal: [bold]mcpwn survey --url http://localhost:{port}/mcp[/]\n")
+        console.print(
+            f"[bold green]MCPwn Lab[/] running on [underline]http://localhost:{port}/mcp[/]"
+        )
+        console.print(
+            f"In another terminal: [bold]mcpwn survey --url http://localhost:{port}/mcp[/]\n"
+        )
     else:
         console.print("[bold green]MCPwn Lab[/] starting on stdio...")
-        console.print(f"  [bold]mcpwn survey --stdio \"{sys.executable} -m mcpwn.lab.server\"[/]\n")
+        console.print(
+            f'  [bold]mcpwn survey --stdio "{sys.executable} -m mcpwn.lab.server"[/]\n'
+        )
 
     cmd = [sys.executable, "-m", "mcpwn.lab.server"]
     if http:
@@ -253,7 +323,9 @@ def lab(
 @app.command()
 def report(
     input_file: Path = typer.Argument(..., help="JSON results file"),
-    output: Path = typer.Option("report.html", "--output", "-o", help="Output HTML file"),
+    output: Path = typer.Option(
+        "report.html", "--output", "-o", help="Output HTML file"
+    ),
 ):
     """Generate an HTML report from a JSON results file."""
     if not input_file.exists():
@@ -270,14 +342,21 @@ def report(
 
 @app.command(name="survey-a2a")
 def survey_a2a(
-    url: str = typer.Argument(..., help="A2A agent URL (e.g. https://agent.example.com)"),
-    output: Path = typer.Option(None, "--output", "-o", help="Save results to JSON file"),
+    url: str = typer.Argument(
+        ..., help="A2A agent URL (e.g. https://agent.example.com)"
+    ),
+    output: Path = typer.Option(
+        None, "--output", "-o", help="Save results to JSON file"
+    ),
     html: Path = typer.Option(None, "--html", help="Generate HTML report"),
 ):
     """Survey an A2A agent by fetching and validating its agent card."""
-    console.print(Panel(f"[bold cyan]MCPwn A2A Survey[/]\n[dim]Target:[/] {url}", title="MCPwn"))
+    console.print(
+        Panel(f"[bold cyan]MCPwn A2A Survey[/]\n[dim]Target:[/] {url}", title="MCPwn")
+    )
 
     try:
+
         async def run():
             result = ScanResult(target=url)
             console.print("\n[bold]Phase 1:[/] Fetching agent card...")
