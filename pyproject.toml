@@ -1,6 +1,6 @@
 [project]
 name = "mcpwn-core"
-version = "0.1.1"
+version = "0.1.2"
 description = "Offensive security testing framework for MCP (Model Context Protocol) protocols"
 keywords = ["mcp", "security", "pentesting", "ai-security", "red-team"]
 classifiers = [
