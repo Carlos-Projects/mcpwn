@@ -11,6 +11,23 @@ Offensive security testing framework for [MCP (Model Context Protocol)](https://
 
 Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** MCP servers by sending real attack payloads and analyzing responses. Includes a deliberately vulnerable lab server for practice.
 
+---
+
+## What makes MCPwn unique
+
+| Capability | MCPwn | Cisco MCP Scanner | mcp-scan |
+|---|---|---|---|
+| **Active payload injection** | ✅ sends real attacks | ❌ passive only | ❌ passive only |
+| **Vulnerable lab server** | ✅ 7 vulnerable tools | ❌ | ❌ |
+| **Command injection testing** | ✅ | ❌ | ❌ |
+| **SSRF testing** | ✅ | ❌ | ❌ |
+| **SQL injection testing** | ✅ | ❌ | ❌ |
+| **Tool poisoning campaigns** | ✅ | ❌ | ❌ |
+| **A2A protocol survey** | ✅ | ❌ | ❌ |
+| **HTML report generation** | ✅ | ❌ | ❌ |
+
+---
+
 ![MCPwn Demo](docs/demo.svg)
 
 ## Quick demo
@@ -209,6 +226,15 @@ pytest -v
     url: http://localhost:8080/mcp
     fail-on: high
 ```
+
+## Related Projects
+
+MCPwn is part of the **Carlos-Projects** security ecosystem for AI agents:
+
+- [**MCPGuard**](https://github.com/Carlos-Projects/mcpguard) — Runtime security proxy for MCP/A2A protocols with HTMX dashboard
+- [**Palisade Scanner**](https://github.com/Carlos-Projects/palisade-scanner) — Scan web content for prompt injection and adversarial content
+- [**MCPscop**](https://github.com/Carlos-Projects/mcpscope) — Unified security dashboard for MCP/A2A scanner results
+- [**AgentGate**](https://github.com/Carlos-Projects/agentgate) — Policy-based firewall and honeypot middleware for AI agents
 
 ## License
 
