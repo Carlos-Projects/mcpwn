@@ -46,5 +46,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/carlos-projects/mcpwn:latest
-            ghcr.io/carlos-projects/mcpwn:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
