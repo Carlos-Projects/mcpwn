@@ -13,6 +13,23 @@ Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** 
 
 ---
 
+## 30-second demo
+
+```bash
+pip install mcpwn-core
+mcpwn demo
+```
+
+Expected output:
+```
+* vulnerable tools discovered
+* command injection confirmed
+* SSRF candidates detected
+* HTML report generated
+```
+
+---
+
 ## What makes MCPwn unique
 
 | Capability | MCPwn | Cisco MCP Scanner | mcp-scan |
@@ -29,13 +46,6 @@ Unlike passive scanners (Cisco MCP Scanner, mcp-scan), **MCPwn actively tests** 
 ---
 
 ![MCPwn Demo](docs/demo.svg)
-
-## Quick demo
-
-```bash
-pip install mcpwn-core
-mcpwn demo
-```
 
 ## Installation
 
@@ -227,14 +237,22 @@ pytest -v
     fail-on: high
 ```
 
-## Related Projects
+## Ecosystem
 
-MCPwn is part of the **Carlos-Projects** security ecosystem for AI agents:
+MCPwn is part of the **Carlos-Projects** security infrastructure for AI agents:
 
-- [**MCPGuard**](https://github.com/Carlos-Projects/mcpguard) — Runtime security proxy for MCP/A2A protocols with HTMX dashboard
-- [**Palisade Scanner**](https://github.com/Carlos-Projects/palisade-scanner) — Scan web content for prompt injection and adversarial content
-- [**MCPscop**](https://github.com/Carlos-Projects/mcpscope) — Unified security dashboard for MCP/A2A scanner results
-- [**AgentGate**](https://github.com/Carlos-Projects/agentgate) — Policy-based firewall and honeypot middleware for AI agents
+```
+Palisade Scanner    →  Scan content before agents consume it.
+MCPwn               →  Attack MCP servers before attackers do.  ← you are here
+AgentGate           →  Control how agents access your website.
+MCPscop             →  Centralize scanner results and security posture.
+MCPGuard            →  Runtime security proxy for MCP/A2A protocols.
+```
+
+- [Palisade Scanner](https://github.com/Carlos-Projects/palisade-scanner) — Scan web content for prompt injection and adversarial content
+- [AgentGate](https://github.com/Carlos-Projects/agentgate) — Policy-based firewall and honeypot middleware for AI agents
+- [MCPscop](https://github.com/Carlos-Projects/mcpscope) — Unified security dashboard for MCP/A2A scanner results
+- [MCPGuard](https://github.com/Carlos-Projects/mcpguard) — Runtime security proxy for MCP/A2A protocols
 
 ## License
 
