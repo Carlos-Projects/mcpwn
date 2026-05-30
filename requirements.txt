@@ -5,7 +5,7 @@
 Jinja2==3.1.6
 httpx-sse==0.4.3
 httpx==0.28.1
-mcp==1.27.1
+mcp==1.27.2
 pytest-httpx==0.36.2
 rich==14.3.4
 typer==0.25.1
