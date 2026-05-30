@@ -1,5 +1,26 @@
 # Contributing to MCPwn
 
+👋 **Hey there, and welcome to MCPwn!**
+
+We're building offensive security testing tools for MCP servers, and we couldn't do it without contributors like you. Whether you're a seasoned security researcher or just getting started with AI security, your contributions are valued here.
+
+## First Time Contributor?
+
+Jumping into security tools can feel intimidating — but we've made it easy:
+
+- Browse issues labeled `good first issue`
+- Try adding a new lab vulnerability (it's a great way to learn the codebase)
+- Improve test coverage or documentation
+- Ask questions — we're friendly, we promise!
+
+## Need Help?
+
+Questions or stuck on something?
+
+- Open a [GitHub Issue](https://github.com/Carlos-Projects/mcpwn/issues)
+- Search existing issues first — someone might have solved it already
+- Include details like your Python version, OS, and steps to reproduce
+
 ## Getting Started
 
 ```bash
@@ -40,3 +61,7 @@ pytest -v
 
 ## License
 By contributing you agree that your contributions will be licensed under the MIT License.
+
+---
+
+💡 This project is governed by a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to uphold its principles.
