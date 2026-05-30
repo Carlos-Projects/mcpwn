@@ -6,6 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/mcpwn-core)](https://pypi.org/project/mcpwn-core/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)](Dockerfile)
 [![GitHub stars](https://img.shields.io/github/stars/Carlos-Projects/mcpwn?style=social)](https://github.com/Carlos-Projects/mcpwn)
+[![Star History](https://img.shields.io/badge/Star-History-blue?style=social)](https://api.star-history.com/svg?repos=Carlos-Projects/mcpwn&type=Date)
 
 Offensive security testing framework for [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers.
 
