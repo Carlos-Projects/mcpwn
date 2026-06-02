@@ -86,6 +86,9 @@ mcpwn survey --url http://localhost:8080/mcp --output results.json
 # Generate HTML report
 mcpwn survey --url http://localhost:8080/mcp --html report.html
 
+# Increase HTTP request timeout
+mcpwn survey --url http://localhost:8080/mcp --timeout 60
+
 # Skip active injection tests
 mcpwn survey --url http://localhost:8080/mcp --no-injection
 ```
