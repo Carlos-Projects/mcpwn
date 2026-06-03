@@ -8,6 +8,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import httpx
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -70,13 +71,14 @@ async def run_survey(
     stdio: str | None = None,
     no_injection: bool = False,
     yes: bool = False,
+    timeout: float = 30.0,
 ) -> ScanResult:
     target = stdio or url or "unknown"
 
     if url:
         from mcpwn.utils.mcp_connect import connect_http
 
-        ctx = connect_http(url)
+        ctx = connect_http(url, timeout=timeout)
     else:
         assert stdio is not None
         parts = stdio.split()
@@ -194,10 +196,18 @@ def survey(
     yes: bool = typer.Option(
         False, "--yes", "-y", help="Skip stdio command warning (for CI/automated use)"
     ),
+    timeout: float = typer.Option(
+        30.0,
+        "--timeout",
+        help="HTTP request timeout in seconds when using --url",
+    ),
 ):
     """Survey an MCP server for security vulnerabilities."""
     if not stdio and not url:
         console.print("[red]Error: Provide either --stdio or --url[/]")
+        raise typer.Exit(1)
+    if timeout <= 0:
+        console.print("[red]Error: --timeout must be greater than 0[/]")
         raise typer.Exit(1)
 
     target = stdio or url
@@ -210,8 +220,17 @@ def survey(
 
     try:
         scan_result = asyncio.run(
-            run_survey(url=url, stdio=stdio, no_injection=no_injection, yes=yes)
+            run_survey(
+                url=url,
+                stdio=stdio,
+                no_injection=no_injection,
+                yes=yes,
+                timeout=timeout,
+            )
         )
+    except (TimeoutError, httpx.TimeoutException):
+        console.print(f"[red]Error: Request timed out after {timeout:g}s[/]")
+        raise typer.Exit(1)
     except ConnectionRefusedError:
         console.print(
             "[red]Error: Connection refused.[/] Is the server running and accessible?"
