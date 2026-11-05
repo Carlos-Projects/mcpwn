@@ -18,7 +18,7 @@ SSRF_PAYLOADS = [
 
 async def scan_ssrf(tool: Tool, call_tool_fn) -> list[Finding]:
     findings: list[Finding] = []
-    input_schema = tool.inputSchema or {}
+    input_schema = tool.input_schema or {}
     properties = input_schema.get("properties", {})
 
     for param_name, param_schema in properties.items():

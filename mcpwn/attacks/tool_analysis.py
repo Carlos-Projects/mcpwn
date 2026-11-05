@@ -78,7 +78,7 @@ def analyze_tools(tools: list[Tool]) -> list[Finding]:
                     attack_type="tool_poisoning",
                     target=tool.name,
                     description=f"Tool name '{tool.name}' contains '{suspicious_name}' which suggests {reason.lower()}.",
-                    detail=f"Full name: {tool.name}\nDescription: {tool.description or '(none)'}\nInput schema: {tool.inputSchema}",
+                    detail=f"Full name: {tool.name}\nDescription: {tool.description or '(none)'}\nInput schema: {tool.input_schema}",
                     recommendation="Review this tool's implementation. If it performs the operation suggested by its name, restrict access or remove it. Rename to avoid ambiguity.",
                     evidence={"name": tool.name, "suspicious_part": suspicious_name, "reason": reason},
                 ))
