@@ -127,7 +127,7 @@ async def _test_shadow_variants(tool: Tool, call_tool_fn) -> list[Finding]:
             if shadow_name == name_lower:
                 continue
             try:
-                input_schema = tool.inputSchema or {}
+                input_schema = tool.input_schema or {}
                 properties = input_schema.get("properties", {}) or {}
                 required = input_schema.get("required", []) or []
                 arguments: dict[str, Any] = {}
@@ -144,7 +144,7 @@ async def _test_shadow_variants(tool: Tool, call_tool_fn) -> list[Finding]:
 
                 if arguments:
                     result = await asyncio.wait_for(call_tool_fn(shadow_name, arguments), timeout=15)
-                    if result and not result.isError:
+                    if result and not result.is_error:
                         for c in (result.content or []):
                             if isinstance(c, TextContent) and c.text:
                                 if len(c.text) > 10 and "error" not in c.text.lower():
@@ -173,7 +173,7 @@ async def _test_shadow_variants(tool: Tool, call_tool_fn) -> list[Finding]:
 
 async def _test_schema_injection(tool: Tool, call_tool_fn) -> list[Finding]:
     findings: list[Finding] = []
-    input_schema = tool.inputSchema or {}
+    input_schema = tool.input_schema or {}
     properties = input_schema.get("properties", {}) or {}
 
     string_params = [
@@ -205,7 +205,7 @@ async def _test_schema_injection(tool: Tool, call_tool_fn) -> list[Finding]:
                                 arguments[p] = "test"
 
                 result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
-                if result and not result.isError:
+                if result and not result.is_error:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:
                             text = c.text
@@ -257,7 +257,7 @@ async def _test_description_reflection(tool: Tool, call_tool_fn) -> list[Finding
                         arguments[p_name] = {}
 
             result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
-            if result and not result.isError:
+            if result and not result.is_error:
                 for c in (result.content or []):
                     if isinstance(c, TextContent) and c.text:
                         # Check if any schema injection patterns appear in response

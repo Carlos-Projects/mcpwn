@@ -3,15 +3,13 @@ from __future__ import annotations
 import sqlite3
 import subprocess
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 
-def create_lab_server(host: str = "127.0.0.1", port: int = 8080) -> FastMCP:
-    mcp = FastMCP(
+def create_lab_server() -> MCPServer:
+    mcp = MCPServer(
         "MCPwn Lab",
         instructions="MCPwn Security Lab - a deliberately vulnerable MCP server for security testing",
-        host=host,
-        port=port,
     )
 
     @mcp.tool()
@@ -94,10 +92,10 @@ if __name__ == "__main__":
         if idx + 1 < len(sys.argv):
             port = int(sys.argv[idx + 1])
 
-    mcp = create_lab_server(host=host, port=port)
+    mcp = create_lab_server()
 
     if http:
         print(f"MCPwn Lab running on http://localhost:{port}/mcp")
-        mcp.run(transport="streamable-http")
+        mcp.run(transport="streamable-http", host=host, port=port)
     else:
         mcp.run(transport="stdio")
