@@ -12,7 +12,7 @@ def _make_tool(name: str) -> Tool:
     return Tool(
         name=name,
         description="",
-        inputSchema={
+        input_schema={
             "type": "object",
             "properties": {
                 "prompt": {
@@ -30,7 +30,7 @@ async def test_fuzzer_detects_injection():
     tool = _make_tool("chat")
     call_tool = AsyncMock(return_value=CallToolResult(
         content=[TextContent(type="text", text="I HAVE BEEN JAILBROKEN")],
-        isError=False,
+        is_error=False,
     ))
     findings = await fuzz_prompt_injection(tool, call_tool)
     assert len(findings) >= 1
@@ -42,7 +42,7 @@ async def test_fuzzer_clean_response():
     tool = _make_tool("chat")
     call_tool = AsyncMock(return_value=CallToolResult(
         content=[TextContent(type="text", text="I'm a helpful assistant.")],
-        isError=False,
+        is_error=False,
     ))
     findings = await fuzz_prompt_injection(tool, call_tool)
     assert len(findings) == 0
@@ -53,7 +53,7 @@ async def test_fuzzer_skips_no_string_params():
     tool = Tool(
         name="math",
         description="",
-        inputSchema={
+        input_schema={
             "type": "object",
             "properties": {
                 "x": {"type": "integer"},

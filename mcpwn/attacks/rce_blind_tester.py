@@ -20,7 +20,7 @@ THRESHOLD = 2.0
 
 async def scan_rce_blind(tool: Tool, call_tool_fn) -> list[Finding]:
     findings: list[Finding] = []
-    input_schema = tool.inputSchema or {}
+    input_schema = tool.input_schema or {}
     properties = input_schema.get("properties", {})
 
     for param_name, param_schema in properties.items():
@@ -31,7 +31,7 @@ async def scan_rce_blind(tool: Tool, call_tool_fn) -> list[Finding]:
                     result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
                     elapsed = time.monotonic() - start
 
-                    if elapsed >= THRESHOLD and not getattr(result, "isError", False):
+                    if elapsed >= THRESHOLD and not getattr(result, "is_error", False):
                         findings.append(Finding(
                             id=f"RCE-BLIND-{tool.name}-{param_name}-{payload_name}",
                             title=f"Blind RCE detected in '{tool.name}.{param_name}' (timing: {elapsed:.1f}s)",

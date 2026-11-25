@@ -162,7 +162,7 @@ DETECTION_SIGNATURES = [
 
 async def fuzz_prompt_injection(tool: Tool, call_tool_fn) -> list[Finding]:
     findings: list[Finding] = []
-    input_schema = tool.inputSchema or {}
+    input_schema = tool.input_schema or {}
     properties = input_schema.get("properties", {})
     required = input_schema.get("required", [])
 
@@ -203,7 +203,7 @@ async def fuzz_prompt_injection(tool: Tool, call_tool_fn) -> list[Finding]:
                         pass
 
                 result = await asyncio.wait_for(call_tool_fn(tool.name, arguments), timeout=15)
-                if result and not result.isError:
+                if result and not result.is_error:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:
                             text = c.text

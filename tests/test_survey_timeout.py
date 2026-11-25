@@ -60,7 +60,7 @@ async def test_connect_http_uses_configured_timeout(monkeypatch):
     async def fake_streamable_http_client(url, *, http_client, terminate_on_close=True):
         captured["url"] = url
         captured["timeout"] = http_client.timeout.connect
-        yield object(), object(), lambda: None
+        yield object(), object()
 
     class FakeClientSession:
         def __init__(self, read, write):

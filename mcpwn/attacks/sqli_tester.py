@@ -21,7 +21,7 @@ SENSITIVE_PATTERNS = ["p@ssw0rd", "password123", "s3rv1c3!", "admin@corp"]
 
 async def scan_sql_injection(tool: Tool, call_tool_fn) -> list[Finding]:
     findings: list[Finding] = []
-    input_schema = tool.inputSchema or {}
+    input_schema = tool.input_schema or {}
     properties = input_schema.get("properties", {})
 
     for param_name, param_schema in properties.items():
@@ -34,7 +34,7 @@ async def scan_sql_injection(tool: Tool, call_tool_fn) -> list[Finding]:
         for payload_name, payload in SQLI_PAYLOADS:
             try:
                 result = await asyncio.wait_for(call_tool_fn(tool.name, {param_name: payload}), timeout=15)
-                if result and not result.isError:
+                if result and not result.is_error:
                     for c in (result.content or []):
                         if isinstance(c, TextContent) and c.text:
                             text = c.text

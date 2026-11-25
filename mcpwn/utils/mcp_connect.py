@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-import httpx
+import httpx2
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from mcp.client.streamable_http import streamable_http_client
@@ -28,8 +28,8 @@ async def connect_stdio(command: str, args: list[str] | None = None, yes: bool =
 
 @asynccontextmanager
 async def connect_http(url: str, timeout: float = 30.0):
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        async with streamable_http_client(url, http_client=client) as (read, write, _):
+    async with httpx2.AsyncClient(timeout=timeout) as client:
+        async with streamable_http_client(url, http_client=client) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 yield session

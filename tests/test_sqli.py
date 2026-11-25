@@ -12,7 +12,7 @@ def _make_tool(name: str, param_desc: str) -> Tool:
     return Tool(
         name=name,
         description="",
-        inputSchema={
+        input_schema={
             "type": "object",
             "properties": {
                 "query": {
@@ -30,7 +30,7 @@ async def test_sqli_finds_injection():
     tool = _make_tool("search_db", "SQL query to search the database")
     call_tool = AsyncMock(return_value=CallToolResult(
         content=[TextContent(type="text", text='{"columns": ["id","name","password"], "rows": [[1,"admin","p@ssw0rd"]]}')],
-        isError=False,
+        is_error=False,
     ))
     findings = await scan_sql_injection(tool, call_tool)
     assert len(findings) >= 1
@@ -50,7 +50,7 @@ async def test_sqli_clean_response_no_finding():
     tool = _make_tool("search_db", "SQL query to search")
     call_tool = AsyncMock(return_value=CallToolResult(
         content=[TextContent(type="text", text="no sensitive data here")],
-        isError=False,
+        is_error=False,
     ))
     findings = await scan_sql_injection(tool, call_tool)
     assert len(findings) == 0
